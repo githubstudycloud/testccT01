@@ -1,0 +1,81 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: platform-external-api
+
+  # 缓存配置
+  cache:
+    type: redis
+
+  # Redis配置
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 1
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# 外部API配置
+external:
+  weather:
+    api:
+      key: demo-key
+      url: https://api.openweathermap.org/data/2.5/weather
+  sms:
+    provider: mock
+    api:
+      key: demo-key
+
+# 熔断器配置
+resilience4j:
+  circuitbreaker:
+    instances:
+      weather-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+      sms-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  retry:
+    instances:
+      weather-service:
+        maxAttempts: 3
+        waitDuration: 1000ms
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# 日志配置
+logging:
+  level:
+    com.platform: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"

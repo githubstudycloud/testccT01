@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # Nginx代理
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: platform-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - gateway
+      - config-center
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+  # 配置中心
+  config-center:
+    build:
+      context: ./platform-config-center
+      dockerfile: Dockerfile
+    container_name: platform-config-center
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - config_data:/app/data
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+  # API网关
+  gateway:
+    build:
+      context: ./platform-gateway
+      dockerfile: Dockerfile
+    container_name: platform-gateway
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-center:8888
+    depends_on:
+      - config-center
+      - redis
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7.2-alpine
+    container_name: platform-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass redis123
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: platform-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=platform
+      - MYSQL_USER=platform
+      - MYSQL_PASSWORD=platform123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: platform-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - platform-network
+    restart: unless-stopped
+
+volumes:
+  nginx_logs:
+  config_data:
+  redis_data:
+  mysql_data:
+  rabbitmq_data:
+
+networks:
+  platform-network:
+    driver: bridge

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- 排除生成的代码 -->
+    <suppress files="[\\/]target[\\/]" checks=".*"/>
+    <suppress files="[\\/]generated[\\/]" checks=".*"/>
+
+    <!-- 排除测试代码的某些规则 -->
+    <suppress files=".*Test\.java" checks="MagicNumber"/>
+    <suppress files=".*Test\.java" checks="JavadocMethod"/>
+    <suppress files=".*Test\.java" checks="JavadocType"/>
+    <suppress files=".*Test\.java" checks="JavadocVariable"/>
+
+    <!-- 排除配置类的某些规则 -->
+    <suppress files=".*Config\.java" checks="HideUtilityClassConstructor"/>
+    <suppress files=".*Configuration\.java" checks="HideUtilityClassConstructor"/>
+
+    <!-- 排除实体类的某些规则 -->
+    <suppress files=".*Entity\.java" checks="DesignForExtension"/>
+    <suppress files=".*DTO\.java" checks="DesignForExtension"/>
+    <suppress files=".*VO\.java" checks="DesignForExtension"/>
+
+    <!-- 排除Spring Boot应用启动类 -->
+    <suppress files=".*Application\.java" checks="HideUtilityClassConstructor"/>
+
+    <!-- 排除Lombok生成的方法 -->
+    <suppress files=".*\.java" checks="HiddenField" message=".*lombok.*"/>
+</suppressions>

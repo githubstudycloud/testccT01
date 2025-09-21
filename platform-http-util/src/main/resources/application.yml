@@ -1,0 +1,33 @@
+server:
+  port: 8003
+
+spring:
+  application:
+    name: platform-http-util
+
+# HTTP客户端配置
+http:
+  client:
+    connect-timeout: 5000
+    read-timeout: 10000
+    write-timeout: 10000
+    max-connections: 100
+    max-connections-per-route: 20
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# 日志配置
+logging:
+  level:
+    com.platform: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
