@@ -6,6 +6,7 @@ echo "=== Git 配置和推送脚本 ==="
 echo "1. 配置Git代理..."
 git config --global http.proxy http://192.168.0.98:8800
 git config --global https.proxy http://192.168.0.98:8800
+git config --global core.gitproxy "socks5://192.168.0.98:10800"
 
 # 配置用户信息
 echo "2. 配置Git用户信息..."
